@@ -9,7 +9,7 @@ module.exports = {
     'airbnb-typescript',
     'eslint-config-prettier',
   ],
-  ignorePatterns: ['dist', 'vite.config.ts', 'vitest.config.ts', 'tests', '*.cjs'],
+  ignorePatterns: ['dist', 'vite.config.ts', 'vitest.config.ts', 'tailwind.config.js', 'tests', '*.cjs'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: './tsconfig.json',
@@ -32,13 +32,6 @@ module.exports = {
         'tsx': 'never',
         'mjs': 'never'
       }
-    ],
-    'react/function-component-definition': [
-      2,
-      {
-        namedComponents: 'arrow-function',
-        unnamedComponents: 'arrow-function',
-      },
     ],
   },
 };
