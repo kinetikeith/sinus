@@ -2,9 +2,13 @@ import ThemeSwitch from '@/components/ThemeSwitch';
 
 export default function App() {
   return (
-    <div>
-      <h2 className="tracking-wider">sinus</h2>
-      <ThemeSwitch />
-    </div>
+    <>
+      <header>
+        <ThemeSwitch />
+      </header>
+      <main className="row-start-2 flex flex-col items-center justify-center gap-4">
+        <div />
+      </main>
+    </>
   );
 }
