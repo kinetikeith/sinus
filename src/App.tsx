@@ -1,29 +1,34 @@
-import { useEffect, useState } from 'react';
+import { Button } from '@headlessui/react';
+import { PlayIcon } from '@heroicons/react/24/outline';
 import ThemeSwitch from '@/components/ThemeSwitch';
-import AudioCtxContext from './providers/AudioCtxContext';
+import useAudioStore from './audioStore';
 import SineControl from './components/SineControl';
 
 export default function App() {
-  const [audioCtx, setAudioCtx] = useState<AudioContext | null>(null);
-
-  useEffect(() => {
-    const newAudioCtx = new AudioContext();
-    setAudioCtx(newAudioCtx);
-
-    return () => {
-      newAudioCtx.close();
-      setAudioCtx(null);
-    };
-  }, []);
+  const audioCtx = useAudioStore((state) => state.audioCtx);
+  const initAudioCtx = useAudioStore((state) => state.initAudioCtx);
+  const setSines = useAudioStore((state) => state.setSines);
 
   return (
-    <AudioCtxContext.Provider value={audioCtx}>
-      <header>
-        <ThemeSwitch />
+    <>
+      <header className="flex items-center justify-center">
+        <div className="absolute z-50">
+          <ThemeSwitch />
+        </div>
       </header>
-      <main className="row-start-2 flex flex-col items-center justify-center gap-4">
-        <SineControl />
+      <Button
+        className="flex items-center justify-center bg-white dark:bg-black text-black dark:text-white fixed inset-0 disabled:opacity-0 disabled:pointer-events-none transition-all duration-500"
+        disabled={audioCtx !== null}
+        onClick={() => {
+          initAudioCtx();
+          setSines([{ freq: 440, amp: 0.5, phase: 0.0 }]);
+        }}
+      >
+        <PlayIcon className="size-36" />
+      </Button>
+      <main className="row-start-2 flex flex-col items-center justify-center gap-4 w-full">
+        <SineControl index={0} />
       </main>
-    </AudioCtxContext.Provider>
+    </>
   );
 }
