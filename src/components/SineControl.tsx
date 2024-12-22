@@ -1,6 +1,7 @@
 import { Input } from '@headlessui/react';
-import { useEffect, useState } from 'react';
-import useAudioStore from '@/audioStore';
+import { useEffect, useState, useMemo } from 'react';
+import { useMeasure } from '@uidotdev/usehooks';
+import useAudioStore, { type Sine } from '@/audioStore';
 
 function useSine() {
   const audioCtx = useAudioStore((state) => state.audioCtx);
@@ -33,6 +34,32 @@ interface SineControlProps {
   index: number;
 }
 
+const resolution = 512;
+const bFreq = 110 / Math.PI;
+
+function SineVisualizer({ freq, amp }: Sine) {
+  const [ref, { width, height }] = useMeasure();
+  const path = useMemo(() => {
+    let res = '';
+    for (let i = 0; i <= resolution; i += 1) {
+      const x = i / resolution;
+      const y = (Math.sin((x * freq) / bFreq) * amp * 0.5 + 0.5) * (height || 0);
+      const xh = x * (width || 0);
+      if (i === 0) res = `M ${xh.toPrecision(4)},${y.toPrecision(4)}`;
+      else res += ` L ${xh.toPrecision(4)},${y.toPrecision(4)}`;
+    }
+    return res;
+  }, [freq, amp, width, height]);
+
+  return (
+    <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-36" ref={ref}>
+      <g className="stroke-2 stroke-current fill-none">
+        <path d={path} />
+      </g>
+    </svg>
+  );
+}
+
 export default function SineControl({ index }: SineControlProps) {
   const freq = useAudioStore((state) => state.sines[index]?.freq) || 0;
   const amp = useAudioStore((state) => state.sines[index]?.amp) || 0;
@@ -47,6 +74,7 @@ export default function SineControl({ index }: SineControlProps) {
 
   return (
     <div className="w-full flex flex-col items-center gap-2 row-start-2 row-end-2 col-start-2 col-end-2">
+      <SineVisualizer freq={freq} amp={amp} phase={0} />
       <Input
         className="appearance-none bg-black dark:bg-white accent-white dark:accent-black rounded-full w-full transition-all duration-500 cursor-pointer"
         type="range"

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { combine } from 'zustand/middleware';
 
-type Sine = {
+export type Sine = {
   freq: number;
   amp: number;
   phase: number;
