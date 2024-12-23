@@ -3,6 +3,24 @@ import { useEffect, useState, useMemo } from 'react';
 import { useMeasure } from '@uidotdev/usehooks';
 import useAudioStore, { type Sine } from '@/audioStore';
 
+function makeSineGradient(steps: number) {
+  const stops = [];
+  for (let i = 0; i <= steps; i += 1) {
+    const x = i / steps;
+    const y = Math.cos(Math.PI * x) * -0.5 + 0.5;
+    stops.push(`hsl(0, 0%, ${(y * 100).toPrecision(4)}%) ${(x * 15).toPrecision(4)}%`);
+  }
+  for (let i = 0; i <= steps; i += 1) {
+    const x = i / steps;
+    const y = Math.cos(Math.PI * x) * 0.5 + 0.5;
+    stops.push(`hsl(0, 0%, ${(y * 100).toPrecision(4)}%) ${(x * 15 + 85).toPrecision(4)}%`);
+  }
+
+  return `linear-gradient(to right, ${stops.join(', ')})`;
+}
+
+const sineGradient = makeSineGradient(4);
+
 function useSine() {
   const audioCtx = useAudioStore((state) => state.audioCtx);
   const [oscillatorNode, setOscillatorNode] = useState<OscillatorNode | null>(null);
@@ -43,7 +61,7 @@ function SineVisualizer({ freq, amp }: Sine) {
     let res = '';
     for (let i = 0; i <= resolution; i += 1) {
       const x = i / resolution;
-      const y = (Math.sin((x * freq) / bFreq) * amp * 0.5 + 0.5) * (height || 0);
+      const y = (Math.sin(((x - 0.5) * freq) / bFreq) * amp * 0.5 + 0.5) * (height || 0);
       const xh = x * (width || 0);
       if (i === 0) res = `M ${xh.toPrecision(4)},${y.toPrecision(4)}`;
       else res += ` L ${xh.toPrecision(4)},${y.toPrecision(4)}`;
@@ -52,7 +70,12 @@ function SineVisualizer({ freq, amp }: Sine) {
   }, [freq, amp, width, height]);
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-48" ref={ref}>
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      className="w-full h-48"
+      ref={ref}
+      style={{ maskImage: sineGradient, maskMode: 'luminance' }}
+    >
       <g className="stroke-2 stroke-current [stroke-dasharray:2,5] fill-none">
         <path d={path} />
       </g>
