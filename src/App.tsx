@@ -1,13 +1,31 @@
 import { Button } from '@headlessui/react';
 import { PlayIcon } from '@heroicons/react/24/outline';
+import { useState, useEffect } from 'react';
 import ThemeSwitch from '@/components/ThemeSwitch';
 import useAudioStore from './audioStore';
-import SineControl from './components/SineControl';
+
+import SineSingle from '@/mode/SineSingle';
+import SineBank from '@/mode/SineBank';
+import Harmonics from '@/mode/Harmonics';
 
 export default function App() {
   const audioCtx = useAudioStore((state) => state.audioCtx);
   const initAudioCtx = useAudioStore((state) => state.initAudioCtx);
   const setSines = useAudioStore((state) => state.setSines);
+  const setMode = useAudioStore((state) => state.setMode);
+
+  const [slide, setSlide] = useState(0);
+
+  useEffect(() => {
+    const handleKeydown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowLeft') setSlide((oldSlide) => Math.max(0, oldSlide - 1));
+      if (event.key === 'ArrowRight') setSlide((oldSlide) => Math.min(2, oldSlide + 1));
+    };
+
+    document.body.addEventListener('keydown', handleKeydown);
+
+    return () => document.body.removeEventListener('keydown', handleKeydown);
+  }, []);
 
   return (
     <>
@@ -21,14 +39,19 @@ export default function App() {
         disabled={audioCtx !== null}
         onClick={() => {
           initAudioCtx();
-          setSines([{ freq: 440, amp: 0.5, phase: 0.0 }]);
+          setSlide(0);
+          setMode('sines');
+          setSines([{ freq: 440, amp: 0.5, phase: 0.0, id: 'Use NanoId!' }]);
         }}
       >
         <PlayIcon className="size-36" />
       </Button>
       <main className="row-start-2 flex flex-col items-center justify-center gap-4 w-full">
-        <SineControl index={0} />
+        {slide === 0 ? <SineSingle /> : null}
+        {slide === 1 ? <SineBank /> : null}
+        {slide === 2 ? <Harmonics /> : null}
       </main>
+      <footer>{slide + 1} / 3</footer>
     </>
   );
 }
