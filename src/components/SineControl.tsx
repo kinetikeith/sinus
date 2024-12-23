@@ -52,8 +52,8 @@ function SineVisualizer({ freq, amp }: Sine) {
   }, [freq, amp, width, height]);
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-36" ref={ref}>
-      <g className="stroke-2 stroke-current fill-none">
+    <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-48" ref={ref}>
+      <g className="stroke-2 stroke-current [stroke-dasharray:2,5] fill-none">
         <path d={path} />
       </g>
     </svg>
