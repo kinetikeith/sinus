@@ -53,7 +53,7 @@ interface SineControlProps {
 }
 
 const resolution = 512;
-const bFreq = 110 / Math.PI;
+const bFreq = 55 / Math.PI;
 
 function SineVisualizer({ freq, amp }: Sine) {
   const [ref, { width, height }] = useMeasure();
@@ -96,31 +96,33 @@ export default function SineControl({ index }: SineControlProps) {
   }, [freq, amp, osc, gain]);
 
   return (
-    <div className="w-full flex flex-col items-center gap-2 row-start-2 row-end-2 col-start-2 col-end-2">
+    <div className="w-full flex flex-col items-center gap-4 row-start-2 row-end-2 col-start-2 col-end-2">
       <SineVisualizer freq={freq} amp={amp} phase={0} />
-      <Input
-        className="appearance-none bg-black dark:bg-white accent-white dark:accent-black rounded-full w-full transition-all duration-500 cursor-pointer"
-        type="range"
-        value={freq}
-        min={20}
-        max={20000}
-        step={10}
-        onChange={(event) => updateSine(index, { freq: parseFloat(event.target.value) })}
-      />
-      <Input
-        className="rounded-lg bg-transparent hover:bg-neutral-200 dark:hover:bg-neutral-800 px-2 py-1 text-center"
-        value={freq}
-        readOnly
-      />
-      <Input
-        className="appearance-none bg-black dark:bg-white accent-white dark:accent-black rounded-full transition-all duration-500 cursor-pointer"
-        type="range"
-        value={amp}
-        min={0}
-        max={1}
-        step={0.01}
-        onChange={(event) => updateSine(index, { amp: parseFloat(event.target.value) })}
-      />
+      <div className="px-8 flex flex-col items-center gap-2 w-full">
+        <Input
+          className="appearance-none bg-black dark:bg-white accent-white dark:accent-black rounded-full mx-8 w-full transition-all duration-500 cursor-pointer"
+          type="range"
+          value={Math.log2(freq)}
+          min={Math.log2(20)}
+          max={Math.log2(20000)}
+          step={0.1}
+          onChange={(event) => updateSine(index, { freq: 2.0 ** parseFloat(event.target.value) })}
+        />
+        <Input
+          className="rounded-lg bg-transparent hover:bg-neutral-200 dark:hover:bg-neutral-800 px-2 text-center"
+          value={freq.toFixed(2)}
+          readOnly
+        />
+        <Input
+          className="appearance-none bg-black dark:bg-white accent-white dark:accent-black rounded-full transition-all duration-500 cursor-pointer"
+          type="range"
+          value={amp}
+          min={0}
+          max={1}
+          step={0.01}
+          onChange={(event) => updateSine(index, { amp: parseFloat(event.target.value) })}
+        />
+      </div>
       <Input
         className="rounded-lg bg-transparent hover:bg-neutral-200 dark:hover:bg-neutral-800 px-2 py-1 text-center"
         value={amp}

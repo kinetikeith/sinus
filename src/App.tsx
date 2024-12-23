@@ -17,7 +17,7 @@ export default function App() {
         </div>
       </header>
       <Button
-        className="flex items-center justify-center bg-white dark:bg-black text-black dark:text-white fixed inset-0 disabled:opacity-0 disabled:pointer-events-none transition-all duration-500"
+        className="flex items-center justify-center bg-white dark:bg-black text-black dark:text-white w-full h-full inset-0 fixed z-10 opacity-100 disabled:opacity-0 disabled:pointer-events-none transition-all duration-500"
         disabled={audioCtx !== null}
         onClick={() => {
           initAudioCtx();
