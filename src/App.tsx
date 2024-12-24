@@ -1,12 +1,15 @@
 import { Button } from '@headlessui/react';
 import { PlayIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
+import { nanoid } from 'nanoid';
 import ThemeSwitch from '@/components/ThemeSwitch';
 import useAudioStore from './audioStore';
 
 import SineSingle from '@/mode/SineSingle';
 import SineBank from '@/mode/SineBank';
 import Harmonics from '@/mode/Harmonics';
+
+import AudioProcessor from '@/components/AudioProcessor';
 
 export default function App() {
   const audioCtx = useAudioStore((state) => state.audioCtx);
@@ -41,7 +44,7 @@ export default function App() {
           initAudioCtx();
           setSlide(0);
           setMode('sines');
-          setSines([{ freq: 440, amp: 0.5, phase: 0.0, id: 'Use NanoId!' }]);
+          setSines([{ freq: 440, amp: 0.5, phase: 0.0, id: nanoid() }]);
         }}
       >
         <PlayIcon className="size-36" />
@@ -52,6 +55,7 @@ export default function App() {
         {slide === 2 ? <Harmonics /> : null}
       </main>
       <footer>{slide + 1} / 3</footer>
+      <AudioProcessor />
     </>
   );
 }

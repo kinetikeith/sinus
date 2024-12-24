@@ -1,86 +1,12 @@
 import { Input } from '@headlessui/react';
-import { useEffect, useState, useMemo } from 'react';
-import { useMeasure } from '@uidotdev/usehooks';
-import useAudioStore, { type Sine } from '@/audioStore';
-
-function makeSineGradient(steps: number) {
-  const stops = [];
-  for (let i = 0; i <= steps; i += 1) {
-    const x = i / steps;
-    const y = Math.cos(Math.PI * x) * -0.5 + 0.5;
-    stops.push(`hsl(0, 0%, ${(y * 100).toPrecision(4)}%) ${(x * 15).toPrecision(4)}%`);
-  }
-  for (let i = 0; i <= steps; i += 1) {
-    const x = i / steps;
-    const y = Math.cos(Math.PI * x) * 0.5 + 0.5;
-    stops.push(`hsl(0, 0%, ${(y * 100).toPrecision(4)}%) ${(x * 15 + 85).toPrecision(4)}%`);
-  }
-
-  return `linear-gradient(to right, ${stops.join(', ')})`;
-}
+import useAudioStore from '@/audioStore';
+import { useSineSvg } from '@/hooks/visualizer';
+import { makeSineGradient } from '@/utils/draw';
 
 const sineGradient = makeSineGradient(4);
 
-function useSine() {
-  const audioCtx = useAudioStore((state) => state.audioCtx);
-  const [oscillatorNode, setOscillatorNode] = useState<OscillatorNode | null>(null);
-  const [gainNode, setGainNode] = useState<GainNode | null>(null);
-
-  useEffect(() => {
-    if (audioCtx !== null) {
-      const oNode = new OscillatorNode(audioCtx, { type: 'sine' });
-      const gNode = new GainNode(audioCtx, { gain: 0 });
-      oNode.connect(gNode);
-      gNode.connect(audioCtx.destination);
-      oNode.start();
-      setOscillatorNode(oNode);
-      setGainNode(gNode);
-
-      return () => {
-        oNode?.disconnect();
-        gNode?.disconnect();
-      };
-    }
-
-    return () => undefined;
-  }, [audioCtx]);
-
-  return { osc: oscillatorNode, gain: gainNode };
-}
-
 interface SineControlProps {
   index: number;
-}
-
-const resolution = 512;
-const bFreq = 55 / Math.PI;
-
-function SineVisualizer({ freq, amp }: Sine) {
-  const [ref, { width, height }] = useMeasure();
-  const path = useMemo(() => {
-    let res = '';
-    for (let i = 0; i <= resolution; i += 1) {
-      const x = i / resolution;
-      const y = (Math.sin(((x - 0.5) * freq) / bFreq) * amp * 0.5 + 0.5) * (height || 0);
-      const xh = x * (width || 0);
-      if (i === 0) res = `M ${xh.toPrecision(4)},${y.toPrecision(4)}`;
-      else res += ` L ${xh.toPrecision(4)},${y.toPrecision(4)}`;
-    }
-    return res;
-  }, [freq, amp, width, height]);
-
-  return (
-    <svg
-      viewBox={`0 0 ${width} ${height}`}
-      className="w-full h-48"
-      ref={ref}
-      style={{ maskImage: sineGradient, maskMode: 'luminance' }}
-    >
-      <g className="stroke-2 stroke-current [stroke-dasharray:2,5] fill-none">
-        <path d={path} />
-      </g>
-    </svg>
-  );
 }
 
 export default function SineControl({ index }: SineControlProps) {
@@ -88,16 +14,20 @@ export default function SineControl({ index }: SineControlProps) {
   const amp = useAudioStore((state) => state.sines[index]?.amp) || 0;
   const updateSine = useAudioStore((state) => state.updateSine) || 0;
 
-  const { osc, gain } = useSine();
-
-  useEffect(() => {
-    if (osc !== null) osc.frequency.value = freq;
-    if (gain !== null) gain.gain.value = amp;
-  }, [freq, amp, osc, gain]);
+  const { ref, path, viewBox } = useSineSvg(freq, amp, 0);
 
   return (
     <div className="w-full flex flex-col items-center gap-4 row-start-2 row-end-2 col-start-2 col-end-2">
-      <SineVisualizer freq={freq} amp={amp} phase={0} />
+      <svg
+        viewBox={viewBox}
+        className="w-full h-48"
+        ref={ref}
+        style={{ maskImage: sineGradient, maskMode: 'luminance' }}
+      >
+        <g className="stroke-2 stroke-current [stroke-dasharray:2,5] fill-none">
+          <path d={path} />
+        </g>
+      </svg>
       <div className="px-8 flex flex-col items-center gap-2 w-full">
         <Input
           className="appearance-none bg-black dark:bg-white accent-white dark:accent-black rounded-full mx-8 w-full transition-all duration-500 cursor-pointer"
