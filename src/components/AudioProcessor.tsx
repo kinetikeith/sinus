@@ -24,7 +24,7 @@ function useSineNodes(audioCtx: AudioContext) {
   return nodes;
 }
 
-const rampTime = 0.1;
+const rampTime = 0.25;
 
 function SineNode({ sine, audioCtx }: { sine: Sine; audioCtx: AudioContext }) {
   const nodes = useSineNodes(audioCtx);

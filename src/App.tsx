@@ -49,7 +49,7 @@ export default function App() {
       >
         <PlayIcon className="size-36" />
       </Button>
-      <main className="row-start-2 flex flex-col items-center justify-center gap-4 w-full">
+      <main className="row-start-2 grow flex flex-col items-center justify-center gap-4 w-full h-full">
         {slide === 0 ? <SineSingle /> : null}
         {slide === 1 ? <SineBank /> : null}
         {slide === 2 ? <Harmonics /> : null}

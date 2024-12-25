@@ -35,7 +35,7 @@ export default function SineControl({ index }: SineControlProps) {
           value={Math.log2(freq)}
           min={Math.log2(20)}
           max={Math.log2(20000)}
-          step={0.1}
+          step={0.01}
           onChange={(event) => updateSine(index, { freq: 2.0 ** parseFloat(event.target.value) })}
         />
         <Input
