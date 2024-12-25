@@ -35,11 +35,11 @@ export default function SineBank() {
 
   return (
     <div className="h-full w-full flex flex-col items-center">
-      <div className="w-full" style={{ height: itemHeight }}>
+      <div className="w-full h-48">
         <SumMinimal />
       </div>
       {sines.map((sine, index) => (
-        <div className="w-full" key={sine.id} style={{ height: itemHeight }}>
+        <div className="w-full h-16">
           <SineMinimal index={index} key={sine.id} />
         </div>
       ))}
@@ -49,7 +49,7 @@ export default function SineBank() {
             addSine({ freq: nextSine.freq * (sines.length + 1), amp: 0.5, phase: 0.0, id: nanoid() });
           }}
         >
-          <PlusIcon className="size-12" />
+          <PlusIcon className="size-8" />
         </Button>
       </div>
     </div>
