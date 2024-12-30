@@ -2,6 +2,7 @@ import { Input } from '@headlessui/react';
 import useAudioStore from '@/audioStore';
 import { useSineSvg } from '@/hooks/visualizer';
 import { makeSineGradient } from '@/utils/draw';
+import NumericInput from '@/components/NumericInput';
 
 const sineGradient = makeSineGradient(4);
 
@@ -38,10 +39,12 @@ export default function SineControl({ index }: SineControlProps) {
           step={0.01}
           onChange={(event) => updateSine(index, { freq: 2.0 ** parseFloat(event.target.value) })}
         />
-        <Input
+        <NumericInput
           className="rounded-lg bg-transparent hover:bg-neutral-200 dark:hover:bg-neutral-800 px-2 text-center"
-          value={freq.toFixed(2)}
-          readOnly
+          value={freq}
+          unitSuffix=" Hz"
+          onChange={(value) => updateSine(index, { freq: value })}
+          digits={2}
         />
         <Input
           className="appearance-none bg-black dark:bg-white accent-white dark:accent-black rounded-full transition-all duration-500 cursor-pointer"
@@ -53,10 +56,11 @@ export default function SineControl({ index }: SineControlProps) {
           onChange={(event) => updateSine(index, { amp: parseFloat(event.target.value) })}
         />
       </div>
-      <Input
+      <NumericInput
         className="rounded-lg bg-transparent hover:bg-neutral-200 dark:hover:bg-neutral-800 px-2 py-1 text-center"
         value={amp}
-        readOnly
+        digits={2}
+        onChange={(value) => updateSine(index, { amp: value })}
       />
     </div>
   );

@@ -21,6 +21,7 @@ export default function App() {
 
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
+      if (event.target?.tagName === 'INPUT') return;
       if (event.key === 'ArrowLeft') setSlide((oldSlide) => Math.max(0, oldSlide - 1));
       if (event.key === 'ArrowRight') setSlide((oldSlide) => Math.min(2, oldSlide + 1));
     };

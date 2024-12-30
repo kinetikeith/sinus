@@ -39,8 +39,8 @@ export default function SineBank() {
         <SumMinimal />
       </div>
       {sines.map((sine, index) => (
-        <div className="w-full h-16">
-          <SineMinimal index={index} key={sine.id} />
+        <div className="w-full h-16" key={sine.id}>
+          <SineMinimal index={index} />
         </div>
       ))}
       <div style={{ height: itemHeight }}>
