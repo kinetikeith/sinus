@@ -11,6 +11,7 @@ export type Sine = {
 type Harmonic = {
   ratio: number;
   amp: number;
+  phase: number;
   id: string;
 };
 

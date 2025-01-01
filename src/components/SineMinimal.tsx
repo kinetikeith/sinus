@@ -7,8 +7,9 @@ const sineGradient = makeSineGradient(4);
 export default function SineMinimal({ index }: { index: number }) {
   const freq = useAudioStore((state) => state.sines[index]?.freq) || 0;
   const amp = useAudioStore((state) => state.sines[index]?.amp) || 0;
+  const phase = useAudioStore((state) => state.sines[index]?.phase) || 0;
 
-  const { ref, path, viewBox } = useSineSvg(freq, amp, 0);
+  const { ref, path, viewBox } = useSineSvg(freq, amp, phase);
 
   return (
     <svg

@@ -15,7 +15,7 @@ export default function SineControl({ index }: SineControlProps) {
   const amp = useAudioStore((state) => state.sines[index]?.amp) || 0;
   const updateSine = useAudioStore((state) => state.updateSine) || 0;
 
-  const { ref, path, viewBox } = useSineSvg(freq, amp, 0);
+  const { ref, path, axisPath, viewBox } = useSineSvg(freq, amp, 0);
 
   return (
     <div className="w-full flex flex-col items-center gap-4 row-start-2 row-end-2 col-start-2 col-end-2">
@@ -25,9 +25,8 @@ export default function SineControl({ index }: SineControlProps) {
         ref={ref}
         style={{ maskImage: sineGradient, maskMode: 'luminance' }}
       >
-        <g className="stroke-2 stroke-current [stroke-dasharray:2,5] fill-none">
-          <path d={path} />
-        </g>
+        <path d={axisPath} className="stroke-1 stroke-current fill-none opacity-40" />
+        <path d={path} className="stroke-2 stroke-current [stroke-dasharray:2,5] fill-none" />
       </svg>
       <div className="px-8 flex flex-col items-center gap-2 w-full">
         <Input

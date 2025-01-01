@@ -45,7 +45,7 @@ export default function App() {
           initAudioCtx();
           setSlide(0);
           setMode('sines');
-          setSines([{ freq: 440, amp: 0.5, phase: 0.0, id: nanoid() }]);
+          setSines([{ freq: 440, amp: 1.0, phase: 0.0, id: nanoid() }]);
         }}
       >
         <PlayIcon className="size-36" />

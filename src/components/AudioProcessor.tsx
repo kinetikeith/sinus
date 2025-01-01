@@ -76,8 +76,10 @@ function SineProcessor() {
 
   useEffect(() => {
     if (masterGain === null || audioCtx === null) return;
-    masterGain.gain.setValueAtTime(1 / sines.length, audioCtx.currentTime + rampTime);
-  }, [sines.length, masterGain, audioCtx]);
+    const ampSum = sines.reduce((previous, { amp }) => previous + amp, 0.0);
+    if (ampSum <= 1.0) masterGain.gain.setValueAtTime(ampSum, audioCtx.currentTime + rampTime);
+    else masterGain.gain.setValueAtTime(1 / ampSum, audioCtx.currentTime + rampTime);
+  }, [sines, masterGain, audioCtx]);
 
   if (audioCtx === null) return null;
   return sines.map((sine) => <SineNode sine={sine} audioCtx={audioCtx} destination={masterGain} key={sine.id} />);
