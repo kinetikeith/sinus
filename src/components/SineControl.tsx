@@ -13,9 +13,10 @@ interface SineControlProps {
 export default function SineControl({ index }: SineControlProps) {
   const freq = useAudioStore((state) => state.sines[index]?.freq) || 0;
   const amp = useAudioStore((state) => state.sines[index]?.amp) || 0;
+  const phase = useAudioStore((state) => state.sines[index]?.phase) || 0;
   const updateSine = useAudioStore((state) => state.updateSine) || 0;
 
-  const { ref, path, axisPath, viewBox } = useSineSvg(freq, amp, 0);
+  const { ref, path, axisPath, viewBox } = useSineSvg(freq, amp, phase);
 
   return (
     <div className="w-full flex flex-col items-center gap-4 row-start-2 row-end-2 col-start-2 col-end-2">
@@ -54,13 +55,29 @@ export default function SineControl({ index }: SineControlProps) {
           step={0.01}
           onChange={(event) => updateSine(index, { amp: parseFloat(event.target.value) })}
         />
+        <NumericInput
+          className="rounded-lg bg-transparent hover:bg-neutral-200 dark:hover:bg-neutral-800 px-2 py-1 text-center"
+          value={amp}
+          digits={2}
+          onChange={(value) => updateSine(index, { amp: value })}
+        />
+        <Input
+          className="appearance-none bg-black dark:bg-white accent-white dark:accent-black rounded-full transition-all duration-500 cursor-pointer"
+          type="range"
+          value={phase}
+          min={-Math.PI}
+          max={Math.PI}
+          step={0.01}
+          onChange={(event) => updateSine(index, { phase: parseFloat(event.target.value) })}
+        />
+        <NumericInput
+          className="rounded-lg bg-transparent hover:bg-neutral-200 dark:hover:bg-neutral-800 px-2 py-1 text-center"
+          value={phase}
+          unitSuffix=" rad"
+          digits={2}
+          onChange={(value) => updateSine(index, { phase: value })}
+        />
       </div>
-      <NumericInput
-        className="rounded-lg bg-transparent hover:bg-neutral-200 dark:hover:bg-neutral-800 px-2 py-1 text-center"
-        value={amp}
-        digits={2}
-        onChange={(value) => updateSine(index, { amp: value })}
-      />
     </div>
   );
 }

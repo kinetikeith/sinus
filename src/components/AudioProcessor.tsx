@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import useAudioStore, { Sine } from '@/audioStore';
+import { useState, useEffect, useMemo } from 'react';
+import useAudioStore, { AudioMode, Harmonic, Sine } from '@/audioStore';
 
 function useSineNodes(audioCtx: AudioContext | null, destination: AudioNode | null) {
   const [nodes, setNodes] = useState<{ osc: OscillatorNode; gain: GainNode } | null>(null);
@@ -69,29 +69,73 @@ function SineNode({
 }
 
 function SineProcessor() {
+  const mode = useAudioStore((state) => state.mode);
   const audioCtx = useAudioStore((state) => state.audioCtx);
   const sines = useAudioStore((state) => state.sines);
+  const sinesFiltered = useMemo(() => (mode === AudioMode.Single ? sines.slice(0, 1) : sines), [mode, sines]);
 
   const masterGain = useGainNode(audioCtx, audioCtx?.destination || null);
 
   useEffect(() => {
     if (masterGain === null || audioCtx === null) return;
-    const ampSum = sines.reduce((previous, { amp }) => previous + amp, 0.0);
+    const ampSum = sinesFiltered.reduce((previous, { amp }) => previous + amp, 0.0);
     if (ampSum <= 1.0) masterGain.gain.setValueAtTime(ampSum, audioCtx.currentTime + rampTime);
     else masterGain.gain.setValueAtTime(1 / ampSum, audioCtx.currentTime + rampTime);
-  }, [sines, masterGain, audioCtx]);
+  }, [sinesFiltered, masterGain, audioCtx]);
 
   if (audioCtx === null) return null;
-  return sines.map((sine) => <SineNode sine={sine} audioCtx={audioCtx} destination={masterGain} key={sine.id} />);
+  return sinesFiltered.map((sine) => (
+    <SineNode sine={sine} audioCtx={audioCtx} destination={masterGain} key={sine.id} />
+  ));
+}
+
+function HarmonicNode({
+  freq,
+  harmonic,
+  audioCtx,
+  destination,
+}: {
+  freq: number;
+  harmonic: Harmonic;
+  audioCtx: AudioContext | null;
+  destination: AudioNode | null;
+}) {
+  const nodes = useSineNodes(audioCtx, destination);
+
+  useEffect(() => {
+    if (nodes !== null && audioCtx !== null) {
+      nodes.osc.frequency.setValueAtTime(freq * harmonic.ratio, audioCtx.currentTime + rampTime);
+      nodes.gain.gain.setValueAtTime(harmonic.amp, audioCtx.currentTime + rampTime);
+    }
+  }, [nodes, freq, harmonic.ratio, harmonic.amp, audioCtx]);
+
+  return null;
 }
 
 function HarmonicProcessor() {
-  return null;
+  const audioCtx = useAudioStore((state) => state.audioCtx);
+  const freq = useAudioStore((state) => state.harmonics.freq);
+  const amp = useAudioStore((state) => state.harmonics.amp);
+  const harmonics = useAudioStore((state) => state.harmonics.harmonics);
+
+  const masterGain = useGainNode(audioCtx, audioCtx?.destination || null);
+
+  useEffect(() => {
+    if (masterGain === null || audioCtx === null) return;
+    const ampSum = harmonics.reduce((previous, { amp: harmAmp }) => previous + harmAmp, 0.0);
+    if (ampSum <= 1.0) masterGain.gain.setValueAtTime(ampSum, audioCtx.currentTime + rampTime);
+    else masterGain.gain.setValueAtTime(amp / ampSum, audioCtx.currentTime + rampTime);
+  }, [harmonics, masterGain, amp, audioCtx]);
+
+  if (audioCtx === null) return null;
+  return harmonics.map((harmonic) => (
+    <HarmonicNode freq={freq} harmonic={harmonic} audioCtx={audioCtx} destination={masterGain} key={harmonic.id} />
+  ));
 }
 
 export default function AudioProcessor() {
   const mode = useAudioStore((state) => state.mode);
 
-  if (mode === 'sines') return <SineProcessor />;
-  if (mode === 'harmonics') return <HarmonicProcessor />;
+  if (mode === AudioMode.Sines || mode === AudioMode.Single) return <SineProcessor />;
+  if (mode === AudioMode.Harmonics) return <HarmonicProcessor />;
 }

@@ -8,7 +8,13 @@ export type Sine = {
   id: string;
 };
 
-type Harmonic = {
+export enum AudioMode {
+  Single = 0,
+  Sines,
+  Harmonics,
+}
+
+export type Harmonic = {
   ratio: number;
   amp: number;
   phase: number;
@@ -18,19 +24,25 @@ type Harmonic = {
 export type HarmonicSeries = {
   freq: number;
   amp: number;
+  phase: number;
   harmonics: Harmonic[];
 };
 
 type AudioStoreState = {
   sines: Sine[];
   harmonics: HarmonicSeries;
-  mode: 'sines' | 'harmonics';
+  mode: AudioMode;
   audioCtx: AudioContext | null;
 };
 
 const useAudioStore = create(
   combine(
-    { sines: [], harmonics: { freq: 0.0, amp: 0.0, harmonics: [] }, mode: 'sines', audioCtx: null } as AudioStoreState,
+    {
+      sines: [],
+      harmonics: { freq: 0.0, amp: 0.0, harmonics: [] },
+      mode: AudioMode.Single,
+      audioCtx: null,
+    } as AudioStoreState,
     (set) => ({
       initAudioCtx: () =>
         set((state) => {
@@ -96,10 +108,42 @@ const useAudioStore = create(
           console.debug('Updated harmonics');
           return { harmonics: newHarmonics };
         }),
-
-      setMode: (mode: 'sines' | 'harmonics') =>
-        set(() => {
+      setHarmonicsParams: (params: Partial<Omit<HarmonicSeries, 'harmonics'>>) => {
+        set((state) => ({ harmonics: { ...state.harmonics, ...params } }));
+      },
+      setMode: (mode: AudioMode) =>
+        set((state) => {
           console.debug('Updated mode to: ', mode);
+          if (state.mode === AudioMode.Sines) {
+            const freq = state.sines[0]?.freq || 440.0;
+            const amp = state.sines[0]?.amp || 1.0;
+            const phase = state.sines[0]?.phase || 0.0;
+            return {
+              mode,
+              harmonics: {
+                freq,
+                amp,
+                phase,
+                harmonics: state.sines.map((sine) => ({
+                  ratio: sine.freq / freq,
+                  amp: sine.amp / amp,
+                  phase: sine.phase - phase,
+                  id: sine.id,
+                })),
+              },
+            };
+          }
+          if (state.mode === AudioMode.Harmonics) {
+            return {
+              mode,
+              sines: state.harmonics.harmonics.map((harmonic) => ({
+                freq: state.harmonics.freq * harmonic.ratio,
+                amp: state.harmonics.amp * harmonic.amp,
+                phase: state.harmonics.phase + harmonic.phase,
+                id: harmonic.id,
+              })),
+            };
+          }
           return { mode };
         }),
     }),

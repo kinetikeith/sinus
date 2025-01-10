@@ -1,9 +1,9 @@
 import { Button } from '@headlessui/react';
 import { PlayIcon } from '@heroicons/react/24/outline';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import ThemeSwitch from '@/components/ThemeSwitch';
-import useAudioStore from './audioStore';
+import useAudioStore, { AudioMode } from './audioStore';
 
 import SineSingle from '@/mode/SineSingle';
 import SineBank from '@/mode/SineBank';
@@ -16,20 +16,19 @@ export default function App() {
   const initAudioCtx = useAudioStore((state) => state.initAudioCtx);
   const setSines = useAudioStore((state) => state.setSines);
   const setMode = useAudioStore((state) => state.setMode);
-
-  const [slide, setSlide] = useState(0);
+  const mode = useAudioStore((state) => state.mode);
 
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
       if (event.target?.tagName === 'INPUT') return;
-      if (event.key === 'ArrowLeft') setSlide((oldSlide) => Math.max(0, oldSlide - 1));
-      if (event.key === 'ArrowRight') setSlide((oldSlide) => Math.min(2, oldSlide + 1));
+      if (event.key === 'ArrowLeft') setMode(Math.max(0, mode - 1) as AudioMode);
+      if (event.key === 'ArrowRight') setMode(Math.min(2, mode + 1) as AudioMode);
     };
 
     document.body.addEventListener('keydown', handleKeydown);
 
     return () => document.body.removeEventListener('keydown', handleKeydown);
-  }, []);
+  }, [mode, setMode]);
 
   return (
     <>
@@ -43,19 +42,18 @@ export default function App() {
         disabled={audioCtx !== null}
         onClick={() => {
           initAudioCtx();
-          setSlide(0);
-          setMode('sines');
+          setMode(AudioMode.Single);
           setSines([{ freq: 440, amp: 1.0, phase: 0.0, id: nanoid() }]);
         }}
       >
         <PlayIcon className="size-36" />
       </Button>
       <main className="row-start-2 grow flex flex-col items-center justify-center gap-4 w-full h-full">
-        {slide === 0 ? <SineSingle /> : null}
-        {slide === 1 ? <SineBank /> : null}
-        {slide === 2 ? <Harmonics /> : null}
+        {mode === AudioMode.Single ? <SineSingle /> : null}
+        {mode === AudioMode.Sines ? <SineBank /> : null}
+        {mode === AudioMode.Harmonics ? <Harmonics /> : null}
       </main>
-      <footer>{slide + 1} / 3</footer>
+      <footer>{mode + 1} / 3</footer>
       <AudioProcessor />
     </>
   );
