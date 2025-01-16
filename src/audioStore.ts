@@ -33,6 +33,7 @@ type AudioStoreState = {
   harmonics: HarmonicSeries;
   mode: AudioMode;
   audioCtx: AudioContext | null;
+  muted: boolean;
 };
 
 const useAudioStore = create(
@@ -42,6 +43,7 @@ const useAudioStore = create(
       harmonics: { freq: 0.0, amp: 0.0, harmonics: [] },
       mode: AudioMode.Single,
       audioCtx: null,
+      muted: false,
     } as AudioStoreState,
     (set) => ({
       initAudioCtx: () =>
@@ -103,10 +105,10 @@ const useAudioStore = create(
           console.debug('Removed harmonic');
           return { harmonics: { ...state.harmonics, harmonics: newHarmonics } };
         }),
-      setHarmonics: (newHarmonics: HarmonicSeries) =>
-        set(() => {
+      setHarmonics: (newHarmonics: Harmonic[]) =>
+        set((state) => {
           console.debug('Updated harmonics');
-          return { harmonics: newHarmonics };
+          return { harmonics: { ...state.harmonics, harmonics: newHarmonics } };
         }),
       setHarmonicsParams: (params: Partial<Omit<HarmonicSeries, 'harmonics'>>) => {
         set((state) => ({ harmonics: { ...state.harmonics, ...params } }));
@@ -146,6 +148,7 @@ const useAudioStore = create(
           }
           return { mode };
         }),
+      toggleMuted: () => set((state) => ({ muted: !state.muted })),
     }),
   ),
 );

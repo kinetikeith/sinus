@@ -17,18 +17,20 @@ export default function App() {
   const setSines = useAudioStore((state) => state.setSines);
   const setMode = useAudioStore((state) => state.setMode);
   const mode = useAudioStore((state) => state.mode);
+  const toggleMuted = useAudioStore((state) => state.toggleMuted);
 
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
       if (event.target?.tagName === 'INPUT') return;
       if (event.key === 'ArrowLeft') setMode(Math.max(0, mode - 1) as AudioMode);
       if (event.key === 'ArrowRight') setMode(Math.min(2, mode + 1) as AudioMode);
+      if (event.key === 'm') toggleMuted();
     };
 
     document.body.addEventListener('keydown', handleKeydown);
 
     return () => document.body.removeEventListener('keydown', handleKeydown);
-  }, [mode, setMode]);
+  }, [mode, setMode, toggleMuted]);
 
   return (
     <>

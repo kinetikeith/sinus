@@ -45,7 +45,7 @@ function useGainNode(audioCtx: AudioContext | null, destination: AudioNode | nul
   return node;
 }
 
-const rampTime = 0.25;
+const rampTime = 0.1;
 
 function SineNode({
   sine,
@@ -73,15 +73,21 @@ function SineProcessor() {
   const audioCtx = useAudioStore((state) => state.audioCtx);
   const sines = useAudioStore((state) => state.sines);
   const sinesFiltered = useMemo(() => (mode === AudioMode.Single ? sines.slice(0, 1) : sines), [mode, sines]);
+  const muted = useAudioStore((state) => state.muted);
 
   const masterGain = useGainNode(audioCtx, audioCtx?.destination || null);
 
   useEffect(() => {
     if (masterGain === null || audioCtx === null) return;
-    const ampSum = sinesFiltered.reduce((previous, { amp }) => previous + amp, 0.0);
-    if (ampSum <= 1.0) masterGain.gain.setValueAtTime(ampSum, audioCtx.currentTime + rampTime);
-    else masterGain.gain.setValueAtTime(1 / ampSum, audioCtx.currentTime + rampTime);
-  }, [sinesFiltered, masterGain, audioCtx]);
+    if (muted) {
+      masterGain.gain.setValueAtTime(0.0, audioCtx.currentTime + rampTime);
+    } else {
+      const firstAmp = sinesFiltered[0]?.amp || 1.0;
+      const ampSum = sinesFiltered.reduce((previous, { amp }) => previous + amp, 0.0);
+      if (ampSum <= 1.0) masterGain.gain.setValueAtTime(ampSum, audioCtx.currentTime + rampTime);
+      else masterGain.gain.setValueAtTime(firstAmp / ampSum, audioCtx.currentTime + rampTime);
+    }
+  }, [sinesFiltered, masterGain, audioCtx, muted]);
 
   if (audioCtx === null) return null;
   return sinesFiltered.map((sine) => (
@@ -117,15 +123,19 @@ function HarmonicProcessor() {
   const freq = useAudioStore((state) => state.harmonics.freq);
   const amp = useAudioStore((state) => state.harmonics.amp);
   const harmonics = useAudioStore((state) => state.harmonics.harmonics);
+  const muted = useAudioStore((state) => state.muted);
 
   const masterGain = useGainNode(audioCtx, audioCtx?.destination || null);
 
   useEffect(() => {
     if (masterGain === null || audioCtx === null) return;
-    const ampSum = harmonics.reduce((previous, { amp: harmAmp }) => previous + harmAmp, 0.0);
-    if (ampSum <= 1.0) masterGain.gain.setValueAtTime(ampSum, audioCtx.currentTime + rampTime);
-    else masterGain.gain.setValueAtTime(amp / ampSum, audioCtx.currentTime + rampTime);
-  }, [harmonics, masterGain, amp, audioCtx]);
+    if (muted) {
+      masterGain.gain.setValueAtTime(0.0, audioCtx.currentTime + rampTime);
+    } else {
+      const ampSum = harmonics.reduce((previous, { amp: harmAmp }) => previous + harmAmp, 0.0);
+      masterGain.gain.setValueAtTime(amp / ampSum, audioCtx.currentTime + rampTime);
+    }
+  }, [harmonics, masterGain, amp, audioCtx, muted]);
 
   if (audioCtx === null) return null;
   return harmonics.map((harmonic) => (
