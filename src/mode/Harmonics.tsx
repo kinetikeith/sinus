@@ -48,7 +48,7 @@ export default function Harmonics() {
             className="rounded-lg bg-transparent hover:bg-neutral-200 dark:hover:bg-neutral-800 px-2 text-center"
             value={freq}
             unitSuffix=" Hz"
-            onChange={(value) => setHarmonicsParams({ freq: value })}
+            onChange={(value) => setHarmonicsParams({ freq: value as number })}
             digits={2}
           />
           <Input
@@ -64,7 +64,7 @@ export default function Harmonics() {
             className="rounded-lg bg-transparent hover:bg-neutral-200 dark:hover:bg-neutral-800 px-2 py-1 text-center"
             value={amp}
             digits={2}
-            onChange={(value) => setHarmonicsParams({ amp: value })}
+            onChange={(value) => setHarmonicsParams({ amp: value as number })}
           />
           <Input
             className="appearance-none bg-black dark:bg-white accent-white dark:accent-black rounded-full transition-all duration-500 cursor-pointer"
@@ -80,7 +80,7 @@ export default function Harmonics() {
             value={phase}
             unitSuffix=" rad"
             digits={2}
-            onChange={(value) => setHarmonicsParams({ phase: value })}
+            onChange={(value) => setHarmonicsParams({ phase: value as number })}
           />
         </div>
       </div>

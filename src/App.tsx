@@ -21,7 +21,7 @@ export default function App() {
 
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
-      if (event.target?.tagName === 'INPUT') return;
+      if ((event.target as HTMLElement)?.tagName === 'INPUT') return;
       if (event.key === 'ArrowLeft') setMode(Math.max(0, mode - 1) as AudioMode);
       if (event.key === 'ArrowRight') setMode(Math.min(2, mode + 1) as AudioMode);
       if (event.key === 'm') toggleMuted();

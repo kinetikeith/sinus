@@ -40,7 +40,7 @@ const useAudioStore = create(
   combine(
     {
       sines: [],
-      harmonics: { freq: 0.0, amp: 0.0, harmonics: [] },
+      harmonics: { freq: 0.0, amp: 0.0, phase: 0.0, harmonics: [] },
       mode: AudioMode.Single,
       audioCtx: null,
       muted: false,

@@ -30,7 +30,7 @@ export function SineControlParams({ index }: SineControlProps) {
         className="rounded-lg bg-transparent hover:bg-neutral-200 dark:hover:bg-neutral-800 px-2 text-center"
         value={freq}
         unitSuffix=" Hz"
-        onChange={(value) => updateSine(index, { freq: value })}
+        onChange={(value) => updateSine(index, { freq: value as number })}
         digits={2}
       />
       <Input
@@ -46,7 +46,7 @@ export function SineControlParams({ index }: SineControlProps) {
         className="rounded-lg bg-transparent hover:bg-neutral-200 dark:hover:bg-neutral-800 px-2 py-1 text-center"
         value={amp}
         digits={2}
-        onChange={(value) => updateSine(index, { amp: value })}
+        onChange={(value) => updateSine(index, { amp: value as number })}
       />
       <Input
         className="appearance-none bg-black dark:bg-white accent-white dark:accent-black rounded-full transition-all duration-500 cursor-pointer"
@@ -62,7 +62,7 @@ export function SineControlParams({ index }: SineControlProps) {
         value={phase}
         unitSuffix=" rad"
         digits={2}
-        onChange={(value) => updateSine(index, { phase: value })}
+        onChange={(value) => updateSine(index, { phase: value as number })}
       />
     </div>
   );
