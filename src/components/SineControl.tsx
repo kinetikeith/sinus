@@ -10,11 +10,68 @@ interface SineControlProps {
   index: number;
 }
 
-export default function SineControl({ index }: SineControlProps) {
+export function SineControlParams({ index }: SineControlProps) {
   const freq = useAudioStore((state) => state.sines[index]?.freq) || 0;
   const amp = useAudioStore((state) => state.sines[index]?.amp) || 0;
   const phase = useAudioStore((state) => state.sines[index]?.phase) || 0;
   const updateSine = useAudioStore((state) => state.updateSine) || 0;
+  return (
+    <div className="px-8 flex flex-col items-center gap-2 w-full">
+      <Input
+        className="appearance-none bg-black dark:bg-white accent-white dark:accent-black rounded-full mx-8 w-full transition-all duration-500 cursor-pointer"
+        type="range"
+        value={Math.log2(freq)}
+        min={Math.log2(20)}
+        max={Math.log2(20000)}
+        step={0.01}
+        onChange={(event) => updateSine(index, { freq: 2.0 ** parseFloat(event.target.value) })}
+      />
+      <NumericInput
+        className="rounded-lg bg-transparent hover:bg-neutral-200 dark:hover:bg-neutral-800 px-2 text-center"
+        value={freq}
+        unitSuffix=" Hz"
+        onChange={(value) => updateSine(index, { freq: value })}
+        digits={2}
+      />
+      <Input
+        className="appearance-none bg-black dark:bg-white accent-white dark:accent-black rounded-full transition-all duration-500 cursor-pointer"
+        type="range"
+        value={amp}
+        min={0}
+        max={1}
+        step={0.01}
+        onChange={(event) => updateSine(index, { amp: parseFloat(event.target.value) })}
+      />
+      <NumericInput
+        className="rounded-lg bg-transparent hover:bg-neutral-200 dark:hover:bg-neutral-800 px-2 py-1 text-center"
+        value={amp}
+        digits={2}
+        onChange={(value) => updateSine(index, { amp: value })}
+      />
+      <Input
+        className="appearance-none bg-black dark:bg-white accent-white dark:accent-black rounded-full transition-all duration-500 cursor-pointer"
+        type="range"
+        value={phase}
+        min={-Math.PI}
+        max={Math.PI}
+        step={0.01}
+        onChange={(event) => updateSine(index, { phase: parseFloat(event.target.value) })}
+      />
+      <NumericInput
+        className="rounded-lg bg-transparent hover:bg-neutral-200 dark:hover:bg-neutral-800 px-2 py-1 text-center"
+        value={phase}
+        unitSuffix=" rad"
+        digits={2}
+        onChange={(value) => updateSine(index, { phase: value })}
+      />
+    </div>
+  );
+}
+
+export default function SineControl({ index }: SineControlProps) {
+  const freq = useAudioStore((state) => state.sines[index]?.freq) || 0;
+  const amp = useAudioStore((state) => state.sines[index]?.amp) || 0;
+  const phase = useAudioStore((state) => state.sines[index]?.phase) || 0;
 
   const { ref, path, axisPath, viewBox } = useSineSvg(freq, amp, phase);
 
@@ -29,55 +86,7 @@ export default function SineControl({ index }: SineControlProps) {
         <path d={axisPath} className="stroke-1 stroke-current fill-none opacity-40" />
         <path d={path} className="stroke-2 stroke-current [stroke-dasharray:2,5] fill-none" />
       </svg>
-      <div className="px-8 flex flex-col items-center gap-2 w-full">
-        <Input
-          className="appearance-none bg-black dark:bg-white accent-white dark:accent-black rounded-full mx-8 w-full transition-all duration-500 cursor-pointer"
-          type="range"
-          value={Math.log2(freq)}
-          min={Math.log2(20)}
-          max={Math.log2(20000)}
-          step={0.01}
-          onChange={(event) => updateSine(index, { freq: 2.0 ** parseFloat(event.target.value) })}
-        />
-        <NumericInput
-          className="rounded-lg bg-transparent hover:bg-neutral-200 dark:hover:bg-neutral-800 px-2 text-center"
-          value={freq}
-          unitSuffix=" Hz"
-          onChange={(value) => updateSine(index, { freq: value })}
-          digits={2}
-        />
-        <Input
-          className="appearance-none bg-black dark:bg-white accent-white dark:accent-black rounded-full transition-all duration-500 cursor-pointer"
-          type="range"
-          value={amp}
-          min={0}
-          max={1}
-          step={0.01}
-          onChange={(event) => updateSine(index, { amp: parseFloat(event.target.value) })}
-        />
-        <NumericInput
-          className="rounded-lg bg-transparent hover:bg-neutral-200 dark:hover:bg-neutral-800 px-2 py-1 text-center"
-          value={amp}
-          digits={2}
-          onChange={(value) => updateSine(index, { amp: value })}
-        />
-        <Input
-          className="appearance-none bg-black dark:bg-white accent-white dark:accent-black rounded-full transition-all duration-500 cursor-pointer"
-          type="range"
-          value={phase}
-          min={-Math.PI}
-          max={Math.PI}
-          step={0.01}
-          onChange={(event) => updateSine(index, { phase: parseFloat(event.target.value) })}
-        />
-        <NumericInput
-          className="rounded-lg bg-transparent hover:bg-neutral-200 dark:hover:bg-neutral-800 px-2 py-1 text-center"
-          value={phase}
-          unitSuffix=" rad"
-          digits={2}
-          onChange={(value) => updateSine(index, { phase: value })}
-        />
-      </div>
+      <SineControlParams index={index} />
     </div>
   );
 }
